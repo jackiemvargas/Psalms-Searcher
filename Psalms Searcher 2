@@ -1,0 +1,126 @@
+ package part2;
+ import java.io.*;
+ import java.util.Scanner;
+ public class PsalmsSearcher {
+    private static final String FILE_NAME = "bible-psalms.txt"; // Path to the 
+file
+    public static void main(String[] args) {
+  Scanner scanner = new Scanner(System.in);
+  while (true) {
+      System.out.print("What Book of Psalms chapter? ");
+      String chapterInput = scanner.nextLine();
+      // Check for termination condition
+      int 
+chapter = parsePositiveInteger(chapterInput);
+      if (chapter == 0) {
+ break;
+      } else if (chapter < 0) {
+ System.out.println("ERROR: Chapter must be a positive integer, 
+start again.");
+                continue;
+            }
+            System.out.print("What Book of Psalms verse within the chapter? ");
+            int verse = parsePositiveInteger(scanner.nextLine());
+            if (verse <= 0) {
+                System.out.println("ERROR: Verse must be a positive integer, 
+start again.");
+                continue;
+            }
+            // Search for the verse
+            String verseText = searchVerse(chapter, verse);
+            if (verseText == null) {
+                System.out.println("ERROR: The chapter and verse do not exist, 
+start again.");
+            } else {
+                System.out.println(verseText);
+            }
+        }
+        System.out.println("Thank you for reading the Book of Psalms!");
+    }
+    private static int parsePositiveInteger(String input) {
+        try {
+            int number = Integer.parseInt(input);
+            return (number >= 0) ? number : -1; // Ensuring non-negative values
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
+    private static String searchVerse(int chapter, int verse) {
+        try (BufferedReader reader = new BufferedReader(new 
+FileReader(FILE_NAME))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (getReference(line).equals("Psalms " + chapter + ":" + verse)) 
+{
+                    return getVerse(line);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("ERROR: File not found, please check the file 
+path.");
+        } catch (IOException e) {
+            System.out.println("ERROR: An error occurred while reading the 
+file.");
+        }
+        return null;
+    }
+    /**
+     * Extracts and returns the reference from a line.
+     * @param line The line from which to extract the reference.
+     * @return The reference.
+     */
+    static String getReference(String line) {
+  return line.split("\t")[0];
+    }
+    /**
+     *
+ Extracts and returns the verse from a line.
+     *
+     *
+ @param line The line from which to extract the verse.
+ @return The verse.
+     */
+    static String getVerse(String line) {
+  return line.split("\t")[1];
+    }
+    /**
+     *
+ Validates if the input string is a positive integer.
+     *
+     *
+ @param input The input string to validate.
+ @return True if the input is a positive integer, false otherwise.
+     */
+    public static boolean isValidInput(String input) {
+  try {
+      int 
+number = Integer.parseInt(input);
+      return number > 0; // Ensure it's a positive integer, not zero
+  } catch (NumberFormatException e) {
+      return false; // Input is not a valid integer
+  }
+    }
+ }
+ package part2;
+ import org.junit.Test;
+ import static org.junit.Assert.assertFalse;
+ import static org.junit.Assert.assertTrue;
+ public class PsalmsSearcherTest {
+    @Test
+    public void testPositiveIntegerInput() {
+  assertTrue(PsalmsSearcher.isValidInput("5"));
+    }
+    @Test
+    public void testNegativeIntegerInput() {
+  assertFalse(PsalmsSearcher.isValidInput("-1"));
+    }
+    @Test
+    public void testNonIntegerInput() {
+  assertFalse(PsalmsSearcher.isValidInput("xyz"));
+    }
+    @Test
+    public void testZeroInput() {
+  // Assuming zero is a valid input for the purpose of closing the program
+  assertFalse(PsalmsSearcher.isValidInput("0"));  
+    }
+ }
